@@ -20,7 +20,7 @@ class TemplateAst : TemplateRootAst {
         if (Test-Path -Path $Path) {
             $InputObject = Get-Content -Path $Path -Raw | ConvertFrom-Json
 
-            if ($this.ValidateTemplate($InputObject)) {
+            if ($this.ValidateRequiredTemplateProperties($InputObject)) {
                 $this.SetProperties($InputObject)
             }
             else {
@@ -33,12 +33,12 @@ class TemplateAst : TemplateRootAst {
     }
     
     TemplateAst ([PSCustomObject]$InputObject) {
-        if ($this.ValidateTemplate($InputObject)) {
+        if ($this.ValidateRequiredTemplateProperties($InputObject)) {
             $this.SetProperties($InputObject)
         }
     }
 
-    [bool] ValidateTemplate ([PSCustomObject]$InputObject) {
+    [bool] ValidateRequiredTemplateProperties ([PSCustomObject]$InputObject) {
         if (-not($InputObject.PSObject.Properties.Name.Contains('$schema'))) {
             return $false
         }
