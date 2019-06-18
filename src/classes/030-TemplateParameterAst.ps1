@@ -1,8 +1,8 @@
 class TemplateParameterAst : TemplateRootAst {
-    
+
     [string]$Type
 
-    [hashtable]$Metadata
+    [PSCustomObject]$Metadata
 
     [PSObject]$DefaultValue
 
@@ -17,4 +17,18 @@ class TemplateParameterAst : TemplateRootAst {
     [int]$MinLength
 
     [int]$MaxLength
+
+    TemplateParameterAst ([string]$ParameterName, [PSCustomObject]$InputObject, [TemplateRootAst]$Parent) {
+        $this.Parent = $Parent
+
+        if (-not($InputObject.PSObject.Properties.Name.Contains('type'))) {
+            Write-Error -Message "Missing required properties, expected: Type" -ErrorAction Stop
+        }
+
+        $this.Name = $ParameterName
+
+        foreach ($Property in $InputObject.PSObject.Properties.Name) {
+            $this.$Property = $InputObject.$Property
+        }
+    }
 }

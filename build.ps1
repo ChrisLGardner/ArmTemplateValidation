@@ -16,7 +16,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-
+$Env:PSModulePath = "$PSScriptRoot\Dependencies;$Env:PSModulePath"
 # Bootstrap dependencies
 if ($Bootstrap.IsPresent) {
     Get-PackageProvider -Name Nuget -ForceBootstrap | Out-Null

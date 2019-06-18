@@ -1,0 +1,40 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "ApiVersion": {
+            "type": "object"
+        },
+        "NetworksDeployConfig": {
+            "type": "object"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "[parameters('ApiVersion').Networks]",
+            "name": "[parameters('NetworksDeployConfig').Name]",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "[parameters('NetworksDeployConfig').Name]"
+            },
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[parameters('NetworksDeployConfig').AddressSpace]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[parameters('NetworksDeployConfig').SubnetName]",
+                        "properties": {
+                            "addressPrefix": "[parameters('NetworksDeployConfig').SubnetAddressSpace]"
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    "outputs": {}
+}

@@ -1,0 +1,48 @@
+{
+    "apiVersion": "2017-05-10",
+    "name": "ExtraStorageAccount",
+    "type": "Microsoft.Resources/deployments",
+    "resourceGroup": "[parameters('KeyVaultResourceGroup')]",
+    "properties": {
+      "mode": "Incremental",
+      "template": {
+        "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+        "contentVersion": "1.0.0.0",
+        "parameters": {
+          "StorageAccountName": {
+              "type": "string"
+          },
+          "location": {
+              "type": "string",
+              "AllowedValues": [
+                  "WestEurope",
+                  "NorthEurope",
+                  "CentralUS"
+              ]
+          }
+        },
+        "variables": {},
+        "resources": [
+            {
+                "type": "Microsoft.Storage/storageAccounts",
+                "name": "[parameters('StorageAccountName')]",
+                "location": "[parameters('Location')]",
+                "apiVersion": "2018-07-01",
+                "sku": {
+                    "name": "Standard_LRS"
+                },
+                "kind": "StorageV2",
+                "properties": {}
+            }
+        ]
+      },
+      "parameters": {
+        "StorageAccountName": {
+            "value": "testName"
+        },
+        "location": {
+            "value": "WestEurope"
+        }
+      }
+    }
+  }

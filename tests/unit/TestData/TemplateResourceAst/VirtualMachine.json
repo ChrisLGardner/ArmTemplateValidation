@@ -1,0 +1,51 @@
+{
+    "type": "Microsoft.Compute/virtualMachines",
+    "apiVersion": "2018-10-01",
+    "name": "[variables('vmName')]",
+    "location": "[parameters('location')]",
+    "dependsOn": [
+      "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+      "[resourceId('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
+    ],
+    "properties": {
+      "hardwareProfile": {
+        "vmSize": "Standard_A2"
+      },
+      "osProfile": {
+        "computerName": "[variables('vmName')]",
+        "adminUsername": "[parameters('adminUsername')]",
+        "adminPassword": "[parameters('adminPassword')]"
+      },
+      "storageProfile": {
+        "imageReference": {
+          "publisher": "MicrosoftWindowsServer",
+          "offer": "WindowsServer",
+          "sku": "[parameters('windowsOSVersion')]",
+          "version": "latest"
+        },
+        "osDisk": {
+          "createOption": "FromImage"
+        },
+        "dataDisks": [
+          {
+            "diskSizeGB": 1023,
+            "lun": 0,
+            "createOption": "Empty"
+          }
+        ]
+      },
+      "networkProfile": {
+        "networkInterfaces": [
+          {
+            "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicName'))]"
+          }
+        ]
+      },
+      "diagnosticsProfile": {
+        "bootDiagnostics": {
+          "enabled": true,
+          "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob]"
+        }
+      }
+    }
+  }
