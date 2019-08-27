@@ -76,7 +76,7 @@ class ArmFunctionValue : ArmValue {
         }
 
         for ($i = 0; $i -lt $this.argumentExpressions.length; ++$i) {
-            if ($i > 0) {
+            if ($i -gt 0) {
                 $result += ", "
             }
             $result += $this.argumentExpressions[$i].toString()

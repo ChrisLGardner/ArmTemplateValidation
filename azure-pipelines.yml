@@ -1,52 +1,83 @@
+trigger:
+  - master
+
 jobs:
   - job: build_powershell_win2019
     pool:
       vmImage: windows-2019
     steps:
-    - powershell: ./build.ps1 -Task Test -Bootstrap -Verbose
+    - task: gittools.gitversion.gitversion-task.GitVersion@5
+      displayName: GitVersion
+      inputs:
+        preferBundledVersion: false
+    - powershell: ./build.ps1 -Task Test -Bootstrap -Verbose -Version $(GitVersion.MajorMinorPatch)
       displayName: 'Build and Test'
+      continueOnError: false
+      errorActionPreference: stop
     - task: PublishTestResults@2
       inputs:
         testRunner: 'NUnit'
-        testResultsFiles: '**/out/testResults.xml'
+        testResultsFiles: '**/testResults.xml'
         testRunTitle: 'powershell_win2019'
       displayName: 'Publish Test Results'
+      condition: succeededOrFailed()
 
   - job: build_pwsh_win2019
     pool:
       vmImage: windows-2019
     steps:
-    - pwsh: ./build.ps1 -Task Test -Bootstrap -Verbose
+    - task: gittools.gitversion.gitversion-task.GitVersion@5
+      displayName: GitVersion
+      inputs:
+        preferBundledVersion: false
+    - pwsh: ./build.ps1 -Task Test -Bootstrap -Verbose -Version $(GitVersion.MajorMinorPatch)
       displayName: 'Build and Test'
+      continueOnError: false
+      errorActionPreference: stop
     - task: PublishTestResults@2
       inputs:
         testRunner: 'NUnit'
-        testResultsFiles: '**/out/testResults.xml'
+        testResultsFiles: '**/testResults.xml'
         testRunTitle: 'pwsh_win2019'
       displayName: 'Publish Test Results'
+      condition: succeededOrFailed()
 
   - job: build_pwsh_ubuntu
     pool:
       vmImage: ubuntu-16.04
     steps:
-    - pwsh: ./build.ps1 -Task Test -Bootstrap -Verbose
+    - task: gittools.gitversion.gitversion-task.GitVersion@5
+      displayName: GitVersion
+      inputs:
+        preferBundledVersion: false
+    - pwsh: ./build.ps1 -Task Test -Bootstrap -Verbose -Version $(GitVersion.MajorMinorPatch)
       displayName: 'Build and Test'
+      continueOnError: false
+      errorActionPreference: stop
     - task: PublishTestResults@2
       inputs:
         testRunner: 'NUnit'
-        testResultsFiles: '**/out/testResults.xml'
+        testResultsFiles: '**/testResults.xml'
         testRunTitle: 'pwsh_ubuntu-16.04'
       displayName: 'Publish Test Results'
+      condition: succeededOrFailed()
 
   - job: build_pwsh_mac
     pool:
       vmImage: macOS-10.14
     steps:
-    - pwsh: ./build.ps1 -Task Test -Bootstrap -Verbose
+    - task: gittools.gitversion.gitversion-task.GitVersion@5
+      displayName: GitVersion
+      inputs:
+        preferBundledVersion: false
+    - pwsh: ./build.ps1 -Task Test -Bootstrap -Verbose -Version $(GitVersion.MajorMinorPatch)
       displayName: 'Build and Test'
+      continueOnError: false
+      errorActionPreference: stop
     - task: PublishTestResults@2
       inputs:
         testRunner: 'NUnit'
-        testResultsFiles: '**/out/testResults.xml'
+        testResultsFiles: '**/testResults.xml'
         testRunTitle: 'pwsh_macOS-10.14'
       displayName: 'Publish Test Results'
+      condition: succeededOrFailed()
