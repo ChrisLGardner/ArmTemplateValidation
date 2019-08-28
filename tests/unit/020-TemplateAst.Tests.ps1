@@ -1,4 +1,4 @@
-Using Module ..\..\output\ArmTemplateValidation
+using module ..\..\Output\ArmTemplateValidation
 
 InModuleScope ArmTemplateValidation {
 
