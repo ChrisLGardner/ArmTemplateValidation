@@ -1,18 +1,34 @@
 Function Resolve-ArmFunction {
     [cmdletbinding()]
     param (
-        [parameter(Mandatory)]
+        [parameter(Mandatory, ParameterSetName = 'InputString')]
         [string]$InputString,
+
+        [parameter(ParameterSetName = 'InputObject')]
+        [ArmValue]$InputObject,
 
         [parameter()]
         [TemplateRootAst]$Template
     )
 
-    $Tokens = [ArmParser]::Parse($InputString)
+    if ($PSCmdlet.ParameterSetName -eq 'InputString') {
+        $Tokens = [ArmParser]::Parse($InputString).Expression
+    }
 
-    $Function = $Tokens.Expression.NameToken.StringValue
+    if ($PSCmdlet.ParameterSetName -eq 'InputObject') {
+        $Tokens = $InputObject
+    }
 
-    $Arguments = $Tokens.Expression.ArgumentExpression
+    $Function = $Tokens.NameToken.StringValue
+
+    $Arguments = foreach ($argument in $Tokens.ArgumentExpression) {
+        if ($argument.NameToken) {
+            Resolve-ArmFunction -InputObject $argument -Template $Template
+        }
+        else {
+            $argument
+        }
+    }
 
     $Command = Get-Command -Name "Resolve-Arm${Function}Function"
 

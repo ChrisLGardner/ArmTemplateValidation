@@ -12,8 +12,14 @@ schema: 2.0.0
 
 ## SYNTAX
 
+### InputString
 ```
-Resolve-ArmFunction [-InputString] <String> [[-Template] <TemplateRootAst>] [<CommonParameters>]
+Resolve-ArmFunction -InputString <String> [-Template <TemplateRootAst>] [<CommonParameters>]
+```
+
+### InputObject
+```
+Resolve-ArmFunction [-InputObject <ArmValue>] [-Template <TemplateRootAst>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -30,16 +36,31 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
+### -InputObject
+{{ Fill InputObject Description }}
+
+```yaml
+Type: ArmValue
+Parameter Sets: InputObject
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -InputString
 {{ Fill InputString Description }}
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: InputString
 Aliases:
 
 Required: True
-Position: 0
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -54,7 +75,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 1
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
