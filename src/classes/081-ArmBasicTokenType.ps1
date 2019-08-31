@@ -1,0 +1,23 @@
+enum ArmBasicTokenType {
+    LeftCurlyBracket
+    RightCurlyBracket
+    LeftSquareBracket
+    RightSquareBracket
+    LeftParenthesis
+    RightParenthesis
+    Underscore
+    Period
+    Dash
+    Plus
+    Comma
+    Colon
+    SingleQuote
+    DoubleQuote
+    Backslash
+    ForwardSlash
+    Asterisk
+    Space
+    Letters
+    Digits
+    Unrecognized
+}

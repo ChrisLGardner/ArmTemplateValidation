@@ -1,0 +1,22 @@
+{
+    "name": "NetworksDeploy",
+    "type": "Microsoft.Resources/deployments",
+    "apiVersion": "[variables('ApiVersion').Default]",
+    "location": "[variables('ProdRegion')]",
+    "dependsOn": [],
+    "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+            "uri": "[concat(parameters('artifactsLocation'), '/VirtualNetwork.json', parameters('artifactsSasToken'))]",
+            "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+            "ApiVersion": {
+                "value": "[variables('ApiVersion')]"
+            },
+            "NetworksDeployConfig": {
+                "value": "[variables('NetworksDeploy').Config]"
+            }
+        }
+    }
+}

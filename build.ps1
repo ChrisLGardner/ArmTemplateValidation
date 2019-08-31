@@ -12,11 +12,13 @@ param(
     [switch]$Help,
 
     # Optional properties to pass to psake
-    [hashtable]$Properties
+    [hashtable]$Properties,
+
+    [Version]$Version = '0.1.0'
 )
 
 $ErrorActionPreference = 'Stop'
-
+$Env:PSModulePath = "$PSScriptRoot\Dependencies;$Env:PSModulePath"
 # Bootstrap dependencies
 if ($Bootstrap.IsPresent) {
     Get-PackageProvider -Name Nuget -ForceBootstrap | Out-Null
@@ -39,6 +41,6 @@ if ($PSCmdlet.ParameterSetName -eq 'Help') {
         Format-Table -Property Name, Description, Alias, DependsOn
 } else {
     Set-BuildEnvironment -Force
-    Invoke-psake -buildFile $psakeFile -taskList $Task -nologo -properties $Properties
+    Invoke-psake -buildFile $psakeFile -taskList $Task -nologo -properties $Properties -parameters @{Version = $Version}
     exit ([int](-not $psake.build_success))
 }

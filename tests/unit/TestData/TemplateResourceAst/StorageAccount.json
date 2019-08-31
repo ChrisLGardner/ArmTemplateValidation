@@ -1,0 +1,11 @@
+{
+    "type": "Microsoft.Storage/storageAccounts",
+    "name": "teststorageaccount",
+    "location": "WestEurope",
+    "apiVersion": "2018-07-01",
+    "sku": {
+        "name": "Standard_LRS"
+    },
+    "kind": "StorageV2",
+    "properties": {}
+}

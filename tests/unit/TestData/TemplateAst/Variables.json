@@ -1,0 +1,22 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "variables": {
+        "StorageAccountName": "teststorageaccount"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[variables('StorageAccountName')]",
+            "location": "WestEurope",
+            "apiVersion": "2018-07-01",
+            "sku": {
+              "name": "Standard_LRS"
+            },
+            "kind": "StorageV2",
+            "properties": {}
+          }
+    ],
+    "outputs": {}
+}
