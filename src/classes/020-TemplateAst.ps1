@@ -81,19 +81,19 @@ class TemplateAst : TemplateRootAst {
             $this.ApiProfile = $InputObject.ApiProfile
         }
 
-        if ($InputObject.Parameters) {
+        if ($InputObject.Parameters -and (Get-Member -InputObject $InputObject.Parameters | Measure-Object).Count -gt 4) {
             $this.SetParameters($InputObject)
         }
 
-        if ($InputObject.Variables) {
+        if ($InputObject.Variables -and (Get-Member -InputObject $InputObject.Variables | Measure-Object).Count -gt 4) {
             $this.SetVariables($InputObject)
         }
 
-        if ($InputObject.Functions) {
+        if ($InputObject.Functions -and (Get-Member -InputObject $InputObject.Functions | Measure-Object).Count -gt 4) {
             $this.SetFunctions($InputObject)
         }
 
-        if ($InputObject.Outputs) {
+        if ($InputObject.Outputs -and (Get-Member -InputObject $InputObject.Outputs | Measure-Object).Count -gt 4) {
             $this.SetOutputs($InputObject)
         }
 
@@ -125,7 +125,7 @@ class TemplateAst : TemplateRootAst {
 
     [void] SetOutputs ([PSCustomObject]$InputObject) {
         $this.Outputs = foreach ($Output in $InputObject.Outputs.PSObject.Properties.Name) {
-            [TemplateOutputAst]::New($Output, $InputObject.Outputs.$Output, $this)
+            [TemplateOutputAst]::New($Output, $InputObject.outputs.$Output, $this)
         }
     }
 

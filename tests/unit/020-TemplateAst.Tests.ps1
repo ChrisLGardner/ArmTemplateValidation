@@ -95,7 +95,7 @@ InModuleScope ArmTemplateValidation {
                 }
 
                 It "Should have function of type TemplateFunctionAst" {
-                    $Sut.Functions.GetType().Name | Should -Be 'TemplateFunctionAst'
+                    $Sut.Functions.GetType().Name | Should -Be 'TemplateFunctionAst[]'
                 }
             }
         }
@@ -116,7 +116,11 @@ InModuleScope ArmTemplateValidation {
                 $ValidTemplate = [PSCustomObject]@{
                     '$schema' = 'ValidSchema'
                     contentVersion = '2.0.0.0'
-                    resources = 'ValidResources'
+                    resources = [PSCustomObject]@{
+                        Name = 'ExampleResource'
+                        Type = 'Microsoft.Test/Resource'
+                        ApiVersion = '1970-01-01'
+                    }
                 }
             }
 
@@ -130,6 +134,10 @@ InModuleScope ArmTemplateValidation {
 
             It "Should write an error when a template with no resources is provided" {
                 {[TemplateAst]::New($NoResources)} | Should -Throw "Invalid template provided"
+            }
+
+            It "Should not write an error when a valid template is provided" {
+                {[TemplateAst]::New($ValidTemplate)} | Should -Not -Throw
             }
 
         }
@@ -152,7 +160,11 @@ InModuleScope ArmTemplateValidation {
                 $ValidTemplate = [PSCustomObject]@{
                     '$schema' = 'ValidSchema'
                     contentVersion = '2.0.0.0'
-                    resources = 'ValidResources'
+                    resources = [PSCustomObject]@{
+                        Name = 'ExampleResource'
+                        Type = 'Microsoft.Test/Resource'
+                        ApiVersion = '1970-01-01'
+                    }
                 }
             }
 
@@ -166,6 +178,10 @@ InModuleScope ArmTemplateValidation {
 
             It "Should write an error when a template with no resources is provided" {
                 {[TemplateAst]::New($NoResources, $EmptyParent)} | Should -Throw "Invalid template provided"
+            }
+
+            It "Should not write an error when a valid template is provided" {
+                {[TemplateAst]::New($ValidTemplate, $EmptyParent)} | Should -Not -Throw
             }
 
         }
