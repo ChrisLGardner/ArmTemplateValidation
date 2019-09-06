@@ -55,13 +55,13 @@ class TemplateAst : TemplateRootAst {
     }
 
     [bool] HasRequiredTemplateProperties ([PSCustomObject]$InputObject) {
-        if (-not($InputObject.PSObject.Properties.Name.Contains('$schema'))) {
+        if (-not($InputObject.'$schema')) {
             return $false
         }
-        if (-not($InputObject.PSObject.Properties.Name.Contains('contentVersion'))) {
+        if (-not($InputObject.contentVersion)) {
             return $false
         }
-        if (-not($InputObject.PSObject.Properties.Name.Contains('resources'))) {
+        if (-not($InputObject.resources)) {
             return $false
         }
         return $true
