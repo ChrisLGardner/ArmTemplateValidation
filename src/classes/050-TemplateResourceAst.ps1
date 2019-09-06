@@ -70,15 +70,15 @@ class TemplateResourceAst : TemplateRootAst {
     }
 
     [bool] HasRequiredProperties ([PSCustomObject]$InputObject) {
-        if (-not($InputObject.PSObject.Properties.Name.Contains('apiVersion') -and
+        if (-not($InputObject.apiVersion -and
                     $InputObject.apiVersion -match '^\d{4}-\d{2}-\d{2}(-preview)?$')) {
             return $false
         }
-        if (-not($InputObject.PSObject.Properties.Name.Contains('type') -and
+        if (-not($InputObject.type -and
                     $InputObject.type -match '[a-z\.]+(\/[a-z]+)+')) {
             return $false
         }
-        if (-not($InputObject.PSObject.Properties.Name.Contains('name'))) {
+        if (-not($InputObject.name)) {
             return $false
         }
         return $true

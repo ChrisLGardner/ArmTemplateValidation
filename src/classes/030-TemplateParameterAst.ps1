@@ -21,7 +21,7 @@ class TemplateParameterAst : TemplateRootAst {
     TemplateParameterAst ([string]$ParameterName, [PSCustomObject]$InputObject, [TemplateRootAst]$Parent) {
         $this.Parent = $Parent
 
-        if (-not($InputObject.PSObject.Properties.Name.Contains('type'))) {
+        if (-not($InputObject.type)) {
             Write-Error -Message "Missing required properties, expected: Type" -ErrorAction Stop
         }
 
