@@ -56,16 +56,57 @@ class TemplateResourceAst : TemplateRootAst {
         if ($InputObject.Type -eq "Microsoft.Resources/deployments" -and
             $InputObject.Properties.Template) {
 
-            Add-Member -InputObject $this.Properties -MemberType NoteProperty -Name TemplateRaw -Value $InputObject.Properties.Template
+            $AddMemberSplat = @{
+                InputObject = $this.Properties
+                MemberType = "NoteProperty"
+                Name = "TemplateRaw"
+                Value = $InputObject.Properties.Template
+            }
+            Add-Member @AddMemberSplat
 
             $this.Properties.Template = [TemplateAst]::New($InputObject.Properties.Template, $this)
         }
         elseif ($InputObject.Type -eq "Microsoft.Resources/deployments" -and
                 $InputObject.Properties.templateLink) {
 
-            Add-Member -InputObject $this.Properties -MemberType NoteProperty -Name TemplateRaw -Value $this.ResolveTemplate($InputObject.Properties.TemplateLink.Uri)
+            $AddMemberSplat = @{
+                InputObject = $this.Properties
+                MemberType = "NoteProperty"
+                Name = "TemplateRaw"
+                Value = $this.ResolveTemplate($InputObject.Properties.TemplateLink.Uri)
+            }
+            Add-Member @AddMemberSplat
 
-            Add-Member -InputObject $this.Properties -MemberType NoteProperty -Name Template -Value ([TemplateAst]::New($this.Properties.TemplateRaw, $this))
+            $AddMemberSplat = @{
+                InputObject = $this.Properties
+                MemberType = "NoteProperty"
+                Name = "Template"
+                Value = ([TemplateAst]::New($this.Properties.TemplateRaw, $this))
+            }
+            Add-Member @AddMemberSplat
+        }
+
+        if ($InputObject.Type -eq "Microsoft.Resources/deployments" -and
+            $InputObject.Properties.Parameters) {
+
+            foreach ($parameter in $InputObject.Properties.Parameters.PSObject.Properties.Name) {
+
+                $AddMemberSplat = @{
+                    InputObject = $InputObject.Properties.Parameters.$parameter
+                    MemberType = "NoteProperty"
+                    Name = "ValueRaw"
+                    Value = $InputObject.Properties.Parameters.$parameter.Value
+                }
+                Add-Member @AddMemberSplat
+
+                if ($InputObject.Properties.Parameters.$parameter.Value -match '^\[') {
+                    $ResolveArmFunctionSplat = @{
+                        InputString = $InputObject.Properties.Parameters.$parameter.Value
+                        Template = $this
+                    }
+                    $InputObject.Properties.Parameters.$parameter.Value = Resolve-ArmFunction @ResolveArmFunctionSplat
+                }
+            }
         }
     }
 
