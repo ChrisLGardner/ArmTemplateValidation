@@ -5,6 +5,7 @@ InModuleScope ArmTemplateValidation {
     Describe "Testing TemplateResourceAst" -Tag "TemplateResourceAst" {
 
         BeforeAll {
+            Mock -CommandName Resolve-ArmFunction -MockWith {'Test'}
             $EmptyParent = [TemplateRootAst]::New()
         }
 
@@ -154,6 +155,14 @@ InModuleScope ArmTemplateValidation {
 
                 It "Should transform the nested template into a TemplateAst" {
                     $Sut.Properties.Template.GetType().Name | Should -Be 'TemplateAst'
+                }
+
+                It "Should add the raw value of the StoragAccountName parameter to the parameter object for passing into the nested template" {
+                    $Sut.Properties.Parameters.StorageAccountName.ValueRaw | Should -Be 'testName'
+                }
+
+                It "Should add the raw value of the location parameter to the parameter object for passing into the nested template" {
+                    $Sut.Properties.Parameters.location.ValueRaw | Should -Be 'WestEurope'
                 }
 
             }
