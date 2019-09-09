@@ -16,52 +16,67 @@ class TemplateAst : TemplateRootAst {
 
     [TemplateFunctionAst[]]$Functions
 
+    [String[]]$Errors
+
+    [bool]$Valid = $true
+
+    hidden [PSCustomObject[]]$ParameterValues
+
+    TemplateAst () {}
+
     TemplateAst ([string]$Path) {
         if (Test-Path -Path $Path) {
             $InputObject = Get-Content -Path $Path -Raw | ConvertFrom-Json
 
-            if ($this.HasRequiredTemplateProperties($InputObject)) {
-                $this.SetProperties($InputObject)
-            }
-            else {
-                Write-Error -Message "Invalid template provided" -ErrorAction Stop
-            }
+            $this.HasRequiredTemplateProperties($InputObject)
+
+            $this.SetProperties($InputObject)
+
         }
         else {
             Write-Error -Message "Invalid Path provided." -ErrorAction Stop
         }
     }
 
-    TemplateAst () {}
+    TemplateAst ([string]$Path, [PSCustomObject[]]$Parameters) {
+        if (Test-Path -Path $Path) {
+            $InputObject = Get-Content -Path $Path -Raw | ConvertFrom-Json
 
-    TemplateAst ([PSCustomObject]$InputObject) {
-        if ($this.HasRequiredTemplateProperties($InputObject)) {
+            $this.HasRequiredTemplateProperties($InputObject)
+            $this.ValidateParameterValues($InputObject, $Parameters)
+
+            $this.ParameterValues = $Parameters
+
             $this.SetProperties($InputObject)
         }
         else {
-            Write-Error -Message "Invalid template provided" -ErrorAction Stop
+            Write-Error -Message "Invalid Path provided." -ErrorAction Stop
         }
+    }
+
+    TemplateAst ([PSCustomObject]$InputObject) {
+        $this.HasRequiredTemplateProperties($InputObject)
+        $this.SetProperties($InputObject)
     }
 
     TemplateAst ([PSCustomObject]$InputObject, [TemplateRootAst]$Parent) {
         $this.Parent = $Parent
 
-        if ($this.HasRequiredTemplateProperties($InputObject)) {
-            $this.SetProperties($InputObject)
-        }
-        else {
-            Write-Error -Message "Invalid template provided" -ErrorAction Stop
-        }
+        $this.HasRequiredTemplateProperties($InputObject)
+        $this.SetProperties($InputObject)
     }
 
     [bool] HasRequiredTemplateProperties ([PSCustomObject]$InputObject) {
         if (-not($InputObject.'$schema')) {
+            $this.Errors += 'Invalid Template: does not contain a $schema element'
             return $false
         }
         if (-not($InputObject.contentVersion)) {
+            $this.Errors += 'Invalid Template: does not contain a contentVersion element'
             return $false
         }
         if (-not($InputObject.resources)) {
+            $this.Errors += 'Invalid Template: does not contain any resources'
             return $false
         }
         return $true
@@ -97,6 +112,10 @@ class TemplateAst : TemplateRootAst {
             $this.SetOutputs($InputObject)
         }
 
+        if ($this.Errors.count -gt 0) {
+            $this.Valid = $false
+        }
+
     }
 
     [void] SetResources ([PSCustomObject]$InputObject) {
@@ -107,6 +126,16 @@ class TemplateAst : TemplateRootAst {
 
     [void] SetParameters ([PSCustomObject]$InputObject) {
         $this.Parameters = foreach ($Parameter in $InputObject.Parameters.PSObject.Properties.Name) {
+            if ($this.ParameterValues -and $Parameter -in ($this.ParameterValues | Get-Member -MemberType NoteProperty).Name) {
+                $AddMemberSplat = @{
+                    InputObject = $InputObject.Parameters.$Parameter
+                    Name = 'Value'
+                    Value = $InputObject.Parameters.$Parameter.Value
+                    Type = "NoteProperty"
+                }
+
+                Add-Member @AddMemberSplat
+            }
             [TemplateParameterAst]::New($Parameter, $InputObject.Parameters.$Parameter, $this)
         }
     }
@@ -129,4 +158,15 @@ class TemplateAst : TemplateRootAst {
         }
     }
 
+    [bool] ValidateParameterValues ([PSCustomObject]$InputObject, [PSCustomObject[]]$ParameterValues) {
+        foreach ($Parameter in ($ParameterValues | Get-Member -MemberType NoteProperty).Name) {
+
+            if (-not $InputObject.Parameters.$Parameter) {
+                Write-Error -Message "No parameter for $Parameter found in this template. Can't use value provided."
+                return $false
+            }
+        }
+
+        return $true
+    }
 }

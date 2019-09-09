@@ -10,16 +10,16 @@ InModuleScope ArmTemplateValidation {
                 {[TemplateAst]::New("$PSScriptRoot\InvalidPath\FakeTemplate.json")} | Should -Throw "Invalid Path provided."
             }
 
-            It "Should write an error when a template with no `$schema is provided" {
-                {[TemplateAst]::New("$PSScriptRoot\TestData\TemplateAst\NoSchema.json")} | Should -Throw "Invalid template provided"
+            It "Should log an error when a template with no `$schema is provided" {
+                ([TemplateAst]::New("$PSScriptRoot\TestData\TemplateAst\NoSchema.json")).Errors | Should -Be 'Invalid Template: does not contain a $schema element'
             }
 
-            It "Should write an error when a template with no contentVersion is provided" {
-                {[TemplateAst]::New("$PSScriptRoot\TestData\TemplateAst\NoContentVersion.json")} | Should -Throw "Invalid template provided"
+            It "Should log an error when a template with no contentVersion is provided" {
+                ([TemplateAst]::New("$PSScriptRoot\TestData\TemplateAst\NoContentVersion.json")).Errors | Should -Be "Invalid Template: does not contain a contentVersion element"
             }
 
-            It "Should write an error when a template with no resources is provided" {
-                {[TemplateAst]::New("$PSScriptRoot\TestData\TemplateAst\NoResources.json")} | Should -Throw "Invalid template provided"
+            It "Should log an error when a template with no resources is provided" {
+                ([TemplateAst]::New("$PSScriptRoot\TestData\TemplateAst\NoResources.json")).Errors | Should -Be "Invalid Template: does not contain any resources"
             }
 
             Context "Template with a single resource" {
@@ -124,20 +124,20 @@ InModuleScope ArmTemplateValidation {
                 }
             }
 
-            It "Should write an error when a template with no `$schema is provided" {
-                {[TemplateAst]::New($NoSchema)} | Should -Throw "Invalid template provided"
+            It 'Should write an error when a template with no $schema is provided' {
+                ([TemplateAst]::New($NoSchema)).Errors | Should -Be 'Invalid Template: does not contain a $schema element'
             }
 
             It "Should write an error when a template with no contentVersion is provided" {
-                {[TemplateAst]::New($NoContentVersion)} | Should -Throw "Invalid template provided"
+                ([TemplateAst]::New($NoContentVersion)).Errors | Should -Be "Invalid Template: does not contain a contentVersion element"
             }
 
             It "Should write an error when a template with no resources is provided" {
-                {[TemplateAst]::New($NoResources)} | Should -Throw "Invalid template provided"
+                ([TemplateAst]::New($NoResources)).Errors | Should -Be "Invalid Template: does not contain any resources"
             }
 
             It "Should not write an error when a valid template is provided" {
-                {[TemplateAst]::New($ValidTemplate)} | Should -Not -Throw
+                ([TemplateAst]::New($ValidTemplate)).Errors.Count | Should -Be 0
             }
 
         }
@@ -168,20 +168,20 @@ InModuleScope ArmTemplateValidation {
                 }
             }
 
-            It "Should write an error when a template with no `$schema is provided" {
-                {[TemplateAst]::New($NoSchema, $EmptyParent)} | Should -Throw "Invalid template provided"
+            It 'Should write an error when a template with no $schema is provided' {
+                ([TemplateAst]::New($NoSchema, $EmptyParent)).Errors | Should -Be 'Invalid Template: does not contain a $schema element'
             }
 
             It "Should write an error when a template with no contentVersion is provided" {
-                {[TemplateAst]::New($NoContentVersion, $EmptyParent)} | Should -Throw "Invalid template provided"
+                ([TemplateAst]::New($NoContentVersion, $EmptyParent)).Errors | Should -Be "Invalid Template: does not contain a contentVersion element"
             }
 
             It "Should write an error when a template with no resources is provided" {
-                {[TemplateAst]::New($NoResources, $EmptyParent)} | Should -Throw "Invalid template provided"
+                ([TemplateAst]::New($NoResources, $EmptyParent)).Errors | Should -Be "Invalid Template: does not contain any resources"
             }
 
             It "Should not write an error when a valid template is provided" {
-                {[TemplateAst]::New($ValidTemplate, $EmptyParent)} | Should -Not -Throw
+                ([TemplateAst]::New($ValidTemplate, $EmptyParent)).Errors.Count | Should -Be 0
             }
 
         }
