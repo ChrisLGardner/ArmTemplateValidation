@@ -32,9 +32,7 @@ class TemplateResourceAst : TemplateRootAst {
 
         $this.Parent = $Parent
 
-        if (-not($this.HasRequiredProperties($InputObject))) {
-            Write-Error -Message "Missing one or more required properties." -ErrorAction Stop
-        }
+        $this.HasRequiredProperties($InputObject)
 
         foreach ($Property in $InputObject.PSObject.Properties.Name.Where({$_ -notin @('resources','copy','sku','plan')})) {
             $this.$Property = $InputObject.$Property
@@ -113,13 +111,16 @@ class TemplateResourceAst : TemplateRootAst {
     [bool] HasRequiredProperties ([PSCustomObject]$InputObject) {
         if (-not($InputObject.apiVersion -and
                     $InputObject.apiVersion -match '^\d{4}-\d{2}-\d{2}(-preview)?$')) {
+            $this.Parent.Errors += 'Invalid template: Resource does not contain a valid ApiVersion'
             return $false
         }
         if (-not($InputObject.type -and
                     $InputObject.type -match '[a-z\.]+(\/[a-z]+)+')) {
+            $this.Parent.Errors += 'Invalid template: Resource does not contain a valid type'
             return $false
         }
         if (-not($InputObject.name)) {
+            $this.Parent.Errors += 'Invalid template: Resource does not contain a Name'
             return $false
         }
         return $true
