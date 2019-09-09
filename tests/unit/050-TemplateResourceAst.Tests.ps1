@@ -6,7 +6,10 @@ InModuleScope ArmTemplateValidation {
 
         BeforeAll {
             Mock -CommandName Resolve-ArmFunction -MockWith {'Test'}
-            $EmptyParent = [TemplateRootAst]::New()
+        }
+
+        BeforeEach {
+            $EmptyParent = [TemplateAst]::New()
         }
 
         Context "Testing constructor with object" {
@@ -34,39 +37,44 @@ InModuleScope ArmTemplateValidation {
                     apiVersion = '2018-07-10'
                     Type = 'Microsoft.Sql/SqlServer'
                 }
-
             }
 
             $RequiredProperties = @(
                 @{
                     RequiredProperty = 'apiVersion'
                     InputObject = $NoApiVersion
+                    Message = 'a valid ApiVersion'
                 }
                 @{
                     RequiredProperty = 'valid apiVersion'
                     InputObject = $InvalidApiVersion
+                    Message = 'a valid ApiVersion'
                 }
                 @{
                     RequiredProperty = 'type'
                     InputObject = $NoType
+                    Message = 'a valid type'
                 }
                 @{
                     RequiredProperty = 'valid type'
                     InputObject = $InvalidType
+                    Message = 'a valid type'
                 }
                 @{
                     RequiredProperty = 'name'
                     InputObject = $NoName
+                    Message = 'a Name'
                 }
             )
 
-            It "Should write an error when no <RequiredProperty> is provided" {
+            It "Should log an error when <RequiredProperty> is not provided" {
                 Param (
                     $RequiredProperty,
-                    $InputObject
+                    $InputObject,
+                    $Message
                 )
 
-                {[TemplateResourceAst]::New($InputObject, $EmptyParent)} | Should -Throw "Missing one or more required properties."
+                ([TemplateResourceAst]::New($InputObject, $EmptyParent)).Parent.Errors | Should -Be "Invalid template: Resource does not contain $message"
 
             } -TestCases $RequiredProperties
 
