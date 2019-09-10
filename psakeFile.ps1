@@ -8,6 +8,7 @@ properties {
     # in the PowerShellBuild shared psake task module
     $PSBPreference.Build.CompileModule = $true
     $PSBPreference.Test.OutputFile = '../Output/testResults.xml'
+    $PSBPreference.Help.DefaultLocale = 'en'
 }
 
 task VersionManifest -action {
