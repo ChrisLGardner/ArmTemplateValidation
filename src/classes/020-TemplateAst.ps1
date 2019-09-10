@@ -114,6 +114,11 @@ class TemplateAst : TemplateRootAst {
 
         if ($this.Errors.count -gt 0) {
             $this.Valid = $false
+
+            if ($null -ne $this.Parent -and $this.Parent -is [TemplateResourceAst]) {
+                $this.Parent.Parent.Errors += $this.Errors
+                $this.Parent.Parent.Valid = $false
+            }
         }
 
     }
