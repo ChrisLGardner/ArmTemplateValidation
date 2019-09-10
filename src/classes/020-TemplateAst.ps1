@@ -131,11 +131,11 @@ class TemplateAst : TemplateRootAst {
 
     [void] SetParameters ([PSCustomObject]$InputObject) {
         $this.Parameters = foreach ($Parameter in $InputObject.Parameters.PSObject.Properties.Name) {
-            if ($this.ParameterValues -and $Parameter -in ($this.ParameterValues | Get-Member -MemberType NoteProperty).Name) {
+            if ($this.ParameterValues -and $Parameter -in ($this.ParameterValues | Foreach-Object { ($_ | Get-Member -MemberType NoteProperty).Name})) {
                 $AddMemberSplat = @{
                     InputObject = $InputObject.Parameters.$Parameter
                     Name = 'Value'
-                    Value = $InputObject.Parameters.$Parameter.Value
+                    Value = $this.ParameterValues.$Parameter.Value
                     Type = "NoteProperty"
                 }
 
@@ -164,7 +164,7 @@ class TemplateAst : TemplateRootAst {
     }
 
     [bool] ValidateParameterValues ([PSCustomObject]$InputObject, [PSCustomObject[]]$ParameterValues) {
-        foreach ($Parameter in ($ParameterValues | Get-Member -MemberType NoteProperty).Name) {
+        foreach ($Parameter in ($ParameterValues | Foreach-Object { ($_ | Get-Member -MemberType NoteProperty).Name})) {
 
             if (-not $InputObject.Parameters.$Parameter) {
                 Write-Error -Message "No parameter for $Parameter found in this template. Can't use value provided."
