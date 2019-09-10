@@ -152,6 +152,42 @@ InModuleScope ArmTemplateValidation {
                     $Sut.Valid | Should -Be $false
                 }
             }
+
+            Context "For a valid template with multiple parameters" {
+
+                BeforeAll {
+                    $InvokeSplat = @{
+                        Path = "$PSScriptRoot\TestData\InvokeTemplateValidation\MultipleParameters.json"
+                        Parameters = @{
+                            StorageAccountName = 'testname'
+                            StorageSku = 'Standard_LRS'
+                        }
+                    }
+
+                    $Sut = Invoke-ArmTemplateValidation @InvokeSplat
+                }
+
+                It "Should return a TemplateAst object" {
+                    $Sut.GetType().Name | Should -Be 'TemplateAst'
+                }
+
+                It "Should have no errors" {
+                    $Sut.Errors.Count | Should -Be 0
+                }
+
+                It "Should be return true for the valid property of the template" {
+                    $Sut.Valid | Should -Be $True
+                }
+
+                It "Should set StorageAccoutName parameter value to 'testname'" {
+                    $Sut.Parameters.Where({$_.Name -eq 'StorageAccountName'}).Value | Should -Be 'testname'
+                }
+
+                It "Should set StorageSku parameter value to 'Standard_LRS'" {
+                    $Sut.Parameters.Where({$_.Name -eq 'StorageSku'}).Value | Should -Be 'Standard_LRS'
+                }
+
+            }
         }
 
         Context "When providing a template, parameter file, and parameters hashtable" {
