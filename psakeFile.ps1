@@ -18,4 +18,4 @@ task VersionManifest -action {
 
 task default -depends VersionManifest, Test
 
-task Test -FromModule PowerShellBuild -Version '0.3.0'
+task Test -FromModule PowerShellBuild -Version '0.4.0'

@@ -4,7 +4,7 @@
         AddToPath = $true
     }
     'Pester' = @{
-        Version = '4.8.1'
+        Version = '4.9.0'
         Parameters = @{
             SkipPublisherCheck = $true
         }
@@ -16,7 +16,7 @@
         Version = '2.0.10'
     }
     'PowerShellBuild' = @{
-        Version = '0.3.0'
+        Version = '0.4.0'
     }
     'Assert' = @{
         Version = '0.9.5'
@@ -25,6 +25,6 @@
         Version = '1.3.1'
     }
     'PSScriptAnalyzer' = @{
-        Version = '1.18.1'
+        Version = '1.18.2'
     }
 }
