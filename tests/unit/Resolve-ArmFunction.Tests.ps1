@@ -14,6 +14,17 @@ InModuleScope ArmTemplateValidation {
                 foreach ($ArmFunction in $ArmFunctionSignatures.FunctionSignatures) {
                     Mock -CommandName "Resolve-Arm$($ArmFunction.Name)Function" -MockWith {}
                 }
+
+                Mock -CommandName Resolve-ArmReferenceFunction -MockWith {
+                    [PSCustomObject]@{
+                        Outputs = [PSCustomObject]@{
+                            test = [PSCustomObject]@{
+                                value = 'othertest'
+                            }
+                        }
+                        inputs = 'teststring'
+                    }
+                }
             }
 
 
@@ -34,6 +45,18 @@ InModuleScope ArmTemplateValidation {
 
                 Assert-MockCalled -CommandName $FunctionName -Times 1 -Scope It
             } -TestCases $ArmFunctionTestCases
+
+            It "Should handle property access for [reference('test','item').inputs]" {
+                $Sut = Resolve-ArmFunction -InputString "[reference('test','item').inputs]" -Template $EmptyTemplate
+
+                $Sut | Should -Be 'teststring'
+            }
+
+            It "Should handle property access for multiple properties deep in [reference('test','item').outputs.test.value]" {
+                $Sut = Resolve-ArmFunction -InputString "[reference('test','item').outputs.test.value]" -Template $EmptyTemplate
+
+                $Sut | Should -Be 'othertest'
+            }
         }
 
         Context "Testing correct functions are called when passed ArmValue objects" {
@@ -44,6 +67,16 @@ InModuleScope ArmTemplateValidation {
                 $ArmFunctionSignatures = Get-Content -Path "$PSScriptRoot\TestData\FunctionSignatures.json" -Raw | ConvertFrom-Json
                 foreach ($ArmFunction in $ArmFunctionSignatures.FunctionSignatures) {
                     Mock -CommandName "Resolve-Arm$($ArmFunction.Name)Function" -MockWith {}
+                }
+                Mock -CommandName Resolve-ArmReferenceFunction -MockWith {
+                    [PSCustomObject]@{
+                        Outputs = [PSCustomObject]@{
+                            test = [PSCustomObject]@{
+                                value = 'othertest'
+                            }
+                        }
+                        inputs = 'teststring'
+                    }
                 }
             }
 
@@ -73,6 +106,23 @@ InModuleScope ArmTemplateValidation {
                 Assert-MockCalled -CommandName Resolve-ArmResourceIdFunction -Times 1 -Scope It
                 Assert-MockCalled -CommandName Resolve-ArmAddFunction -Times 1 -Scope It
             }
+
+            It "Should handle property access for [reference('test','item').inputs]" {
+                $Sut = [ArmParser]::Parse("[reference('test','item').inputs]")
+
+                $result = Resolve-ArmFunction -InputObject $Sut.Expression -Template $EmptyTemplate
+
+                $Result | Should -Be 'teststring'
+            }
+
+            It "Should handle property access for multiple properties deep in [reference('test','item').outputs.test.value]" {
+                $Sut = [ArmParser]::Parse("[reference('test','item').outputs.test.value]")
+
+                $result = Resolve-ArmFunction -InputObject $Sut.Expression -Template $EmptyTemplate
+
+                $Result | Should -Be 'othertest'
+            }
+
         }
     }
 }
