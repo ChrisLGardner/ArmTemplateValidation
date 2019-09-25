@@ -7,11 +7,12 @@ InModuleScope ArmTemplateValidation {
         BeforeAll {
             Mock -CommandName Resolve-ArmFunction -MockWith {'MockedValue'}
             $EmptyTemplate = [TemplateRootAst]::New()
+
         }
 
         Context "Testing constructor" {
 
-            It "Throws an error when required properties aren't provided" {
+            BeforeAll {
                 $MissingType = [PSCustomObject]@{
                     DefaultValue = '1234'
                 }
@@ -26,7 +27,9 @@ InModuleScope ArmTemplateValidation {
                     type = 'string'
                     defaultValue = 'def456'
                 }
+            }
 
+            It "Throws an error when required properties aren't provided" {
                 {[TemplateParameterAst]::New('MissingType', $MissingType, $EmptyParent)} | Should -Throw "Missing required properties, expected: Type"
             }
 
