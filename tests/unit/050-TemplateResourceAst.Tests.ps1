@@ -94,11 +94,11 @@ InModuleScope ArmTemplateValidation {
                 }
 
                 It "Should set the name correctly" {
-                    $Sut.name | Should -Be $VirtualMachine.name
+                    $Sut.name | Should -Be "Test"
                 }
 
                 It "Should set the location correctly" {
-                    $Sut.location | Should -Be $VirtualMachine.location
+                    $Sut.location | Should -Be "Test"
                 }
 
                 It "Should set the dependsOn correctly" {
@@ -172,7 +172,6 @@ InModuleScope ArmTemplateValidation {
                 It "Should add the raw value of the location parameter to the parameter object for passing into the nested template" {
                     $Sut.Properties.Parameters.location.ValueRaw | Should -Be 'WestEurope'
                 }
-
             }
 
             Context "Test public linked template resource" {
@@ -188,8 +187,15 @@ InModuleScope ArmTemplateValidation {
 
             Context "Test private linked template resource" {
                 BeforeAll {
+                    $Script:Location = $PSScriptRoot
+                    Mock -CommandName Resolve-ArmFunction -MockWith {
+                        "$Script:Location\TestData\TemplateResourceAst\VirtualNetwork.json"
+                    } -ParameterFilter {$InputString -eq "[concat(parameters('artifactsLocation'), '/VirtualNetwork.json', parameters('artifactsSasToken'))]"}
                     $PrivateTemplate = Get-Content -Path "$PSScriptRoot\TestData\TemplateResourceAst\PrivateLinkedTemplate.json" -Raw | ConvertFrom-Json
-                    $Sut = [TemplateResourceAst]::New($PrivateTemplate, $EmptyParent)
+                    $Parameters = @([PSCustomObject]@{artifactsLocation = [PSCustomObject]@{Value = "$PSScriptRoot\TestData\TemplateResourceAst\"}})
+                    $Parent = [TemplateAst]::New("$PSScriptRoot\TestData\TemplateResourceAst\Parent.json", $Parameters)
+
+                    $Sut = [TemplateResourceAst]::New($PrivateTemplate, $Parent)
                 }
 
                 It "Should transform the linked template into a TemplateAst" {
