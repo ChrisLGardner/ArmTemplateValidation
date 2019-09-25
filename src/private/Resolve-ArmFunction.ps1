@@ -19,6 +19,12 @@ Function Resolve-ArmFunction {
         $Tokens = $InputObject
     }
 
+    if ($Tokens -is [ArmPropertyAccess]) {
+        $Properties = while ($tokens -is [ArmPropertyAccess]) {
+            $Tokens.NameToken.StringValue
+            $Tokens = $Tokens.Source
+        }
+    }
     $Function = $Tokens.NameToken.StringValue
 
     $Arguments = foreach ($argument in $Tokens.ArgumentExpression) {
@@ -32,6 +38,14 @@ Function Resolve-ArmFunction {
 
     $Command = Get-Command -Name "Resolve-Arm${Function}Function"
 
-    & $Command $Arguments $Template
+    $Output = & $Command $Arguments $Template
+
+    if ($Properties) {
+        [Array]::Reverse($Properties)
+        foreach ($Prop in $Properties) {
+            $Output = $Output.$Prop
+        }
+    }
+    $Output
 }
 
