@@ -8,7 +8,7 @@ class TemplateResourceAst : TemplateRootAst {
 
     [string[]]$DependsOn
 
-    [hashtable]$Tags
+    [PSCustomObject]$Tags
 
     [PSObject]$Properties
 
@@ -35,7 +35,7 @@ class TemplateResourceAst : TemplateRootAst {
         $this.HasRequiredProperties($InputObject)
 
         foreach ($Property in $InputObject.PSObject.Properties.Name.Where({$_ -notin @('resources','copy','sku','plan')})) {
-            $this.$Property = $InputObject.$Property
+            $this.$Property = $this.ResolveValue($InputObject.$Property)
         }
 
         if ($InputObject.Sku) {
@@ -130,8 +130,12 @@ class TemplateResourceAst : TemplateRootAst {
         if ($TemplateUri -match '^\[') {
             $TemplateUri = Resolve-ArmFunction -InputString $TemplateUri -Template $this.Parent
         }
-
-        $TemplateOutput = Invoke-RestMethod -Uri $TemplateUri -ErrorAction Stop
+        if ($TemplateUri -match '^http') {
+            $TemplateOutput = Invoke-RestMethod -Uri $TemplateUri -ErrorAction Stop
+        }
+        else {
+            $TemplateOutput = Get-Content -Path $TemplateUri -Raw | ConvertFrom-Json
+        }
 
         return $TemplateOutput
     }
