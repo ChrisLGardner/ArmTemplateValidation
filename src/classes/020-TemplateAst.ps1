@@ -90,8 +90,6 @@ class TemplateAst : TemplateRootAst {
 
         $this.ContentVersion = $InputObject.ContentVersion
 
-        $this.SetResources($InputObject)
-
         if ($InputObject.ApiProfile) {
             $this.ApiProfile = $InputObject.ApiProfile
         }
@@ -111,6 +109,8 @@ class TemplateAst : TemplateRootAst {
         if ($InputObject.Outputs -and (Get-Member -InputObject $InputObject.Outputs | Measure-Object).Count -gt 4) {
             $this.SetOutputs($InputObject)
         }
+
+        $this.SetResources($InputObject)
 
         if ($this.Errors.count -gt 0) {
             $this.Valid = $false
