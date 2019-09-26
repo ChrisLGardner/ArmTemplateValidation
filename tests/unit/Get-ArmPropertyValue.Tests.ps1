@@ -40,6 +40,10 @@ InModuleScope ArmTemplateValidation {
                         Variables = [PSCustomObject]@{
                             ExampleVar = "Test789"
                             OtherVar = "TestAbc"
+                            ObjectVar = [PSCustomObject]@{
+                                Name = 'Object'
+                                Value = 'SomeValue'
+                            }
                         }
                         Outputs = [PSCustomObject]@{
                             ExampleOutput = [PSCustomObject]@{
@@ -103,6 +107,14 @@ InModuleScope ArmTemplateValidation {
                 $Sut | Should -Be 'Test456'
             }
 
+            It "Should return an object when the content of a variable is an object from the parent template of a resource" {
+                $Sut = Get-ArmPropertyValue -Name ObjectVar -Type 'Variable' -Template $ExampleTemplate.Resources[0]
+
+                $Sut | Should -BeOfType [PSCustomObject]
+                $Sut.Name | Should -Be 'Object'
+                $Sut.Value | Should -Be 'SomeValue'
+            }
+
         }
 
         Context "When using an element inside a nested TemplateAst" {
@@ -117,7 +129,7 @@ InModuleScope ArmTemplateValidation {
                                 apiVersion = "2017-05-10"
                                 name = "ExtraStorageAccount"
                                 type = "Microsoft.Resources/deployments"
-                                resourceGroup = "[parameters('KeyVaultResourceGroup')]"
+                                resourceGroup = "[parameters('ExampleParam')]"
                                 properties = [PSCustomObject]@{
                                     mode = "Incremental"
                                     template = [PSCustomObject]@{
@@ -172,6 +184,10 @@ InModuleScope ArmTemplateValidation {
                         Variables = [PSCustomObject]@{
                             ExampleVar = "Test789"
                             OtherVar = "TestAbc"
+                            ObjectVar = [PSCustomObject]@{
+                                Name = 'Object'
+                                Value = 'SomeValue'
+                            }
                         }
                         Outputs = [PSCustomObject]@{
                             ExampleOutput = [PSCustomObject]@{

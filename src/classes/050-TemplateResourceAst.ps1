@@ -131,7 +131,10 @@ class TemplateResourceAst : TemplateRootAst {
             $TemplateUri = Resolve-ArmFunction -InputString $TemplateUri -Template $this.Parent
         }
         if ($TemplateUri -match '^http') {
-            $TemplateOutput = Invoke-RestMethod -Uri $TemplateUri -ErrorAction Stop
+            $TempPath = "$Env:Temp\$((New-Guid).guid).txt"
+            $TemplateOutput = Invoke-RestMethod -Uri $TemplateUri -ErrorAction Stop -OutFile $TempPath
+            $TemplateOutput = Get-Content -Path $TempPath | ConvertFrom-Json
+            $Null = Remove-Item -Path $TempPath
         }
         else {
             $TemplateOutput = Get-Content -Path $TemplateUri -Raw | ConvertFrom-Json
