@@ -11,32 +11,37 @@ Function Get-ArmPropertyValue {
         [TemplateRootAst]$Template
     )
 
+    $Name = $Name -replace '"' -replace "'"
+
     if ($template -isnot [TemplateAst] -and $template.parent -is [TemplateAst]) {
-        Get-ArmPropertyValue -Type $Type -Name $Name -Template $Template.Parent
+        $output = Get-ArmPropertyValue -Type $Type -Name $Name -Template $Template.Parent
     }
     elseif ($Type -eq 'Variable') {
         if ($Template.Variables.Where({$_.Name -eq $Name})) {
-            $Template.Variables.Where({$_.Name -eq $Name}).Value
+            $output = $Template.Variables.Where({$_.Name -eq $Name}).Value
         }
         elseif ($Template.Parent -is [TemplateResourceAst] -and $Template.Parent.Type -eq 'Microsoft.Resources/Deployments') {
-            Get-ArmPropertyValue -Type $Type -Name $Name -Template $Template.Parent.Parent
+            $output = Get-ArmPropertyValue -Type $Type -Name $Name -Template $Template.Parent.Parent
         }
     }
     elseif ($Type -eq 'Parameter') {
         if ($Template.Parent -is [TemplateResourceAst] -and $Template.Parent.Type -eq 'Microsoft.Resources/Deployments') {
-            $Template.Parent.Properties.Parameters.$Name.Value
+            $output = $Template.Parent.Properties.Parameters.$Name.Value
         }
         elseif ($Template.Parameters.Where({$_.Name -eq $Name})) {
             if ($null -eq $Template.Parameters.Where({$_.Name -eq $Name}).Value) {
-                $Template.Parameters.Where({$_.Name -eq $Name}).DefaultValue
+                $output = $Template.Parameters.Where({$_.Name -eq $Name}).DefaultValue
             }
             else {
-                $Template.Parameters.Where({$_.Name -eq $Name}).Value
+                $output = $Template.Parameters.Where({$_.Name -eq $Name}).Value
             }
         }
+    }
 
+    if ($output -and $output -isnot [ArmValue] -and $output.GetType().Name -ne 'PSCustomObject') {
+        [ArmStringValue]::New(([ArmToken]::Create([ArmTokenType]::Literal, 0, $output)))
     }
     else {
-
+        $output
     }
 }
