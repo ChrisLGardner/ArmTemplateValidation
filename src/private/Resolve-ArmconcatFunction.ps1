@@ -7,4 +7,6 @@ Function Resolve-ArmconcatFunction {
         [parameter()]
         [TemplateRootAst]$Template
     )
+
+    $Arguments.Token.StringValue -join '' -replace "'"
 }
