@@ -62,6 +62,13 @@ class TemplateAst : TemplateRootAst {
     TemplateAst ([PSCustomObject]$InputObject, [TemplateRootAst]$Parent) {
         $this.Parent = $Parent
 
+        if ($Parent -is [TemplateResourceAst]) {
+            $this.ParameterValues = foreach ($param in $Parent.Properties.Parameters.PSObject.Properties.Name) {
+                [PSCustomObject]@{
+                    $Param = $Parent.Properties.Parameters.$Param
+                }
+            }
+        }
         $this.HasRequiredTemplateProperties($InputObject)
         $this.SetProperties($InputObject)
     }
