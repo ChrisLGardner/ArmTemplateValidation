@@ -17,11 +17,12 @@ InModuleScope ArmTemplateValidation {
 
                 Mock -CommandName Resolve-ArmReferenceFunction -MockWith {
                     [PSCustomObject]@{
-                        Outputs = [PSCustomObject]@{
-                            test = [PSCustomObject]@{
+                        Outputs = @(
+                            [PSCustomObject]@{
+                                Name = 'test'
                                 value = 'othertest'
                             }
-                        }
+                        )
                         inputs = 'teststring'
                     }
                 }
@@ -70,11 +71,12 @@ InModuleScope ArmTemplateValidation {
                 }
                 Mock -CommandName Resolve-ArmReferenceFunction -MockWith {
                     [PSCustomObject]@{
-                        Outputs = [PSCustomObject]@{
-                            test = [PSCustomObject]@{
+                        Outputs = @(
+                            [PSCustomObject]@{
+                                Name = 'test'
                                 value = 'othertest'
                             }
-                        }
+                        )
                         inputs = 'teststring'
                     }
                 }
