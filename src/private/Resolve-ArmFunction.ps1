@@ -42,14 +42,19 @@ Function Resolve-ArmFunction {
 
     if ($Properties) {
         if ($Properties[-1] -eq 'outputs') {
-            $Properties[-2] = "Where({`$_.name -eq $($Properties[-2])})"
+            $Properties[-2] = "##$($Properties[-2])##"
         }
         if ($Output -is [TemplateResourceAst]) {
             $Properties += 'Template','Properties'
         }
         [Array]::Reverse($Properties)
         foreach ($Prop in $Properties) {
-            $Output = $Output.$Prop
+            if ($Prop -like '##*##') {
+                $output = $output.Where({$_.Name -eq ($Prop -replace '#')})
+            }
+            else {
+                $Output = $Output.$Prop
+            }
         }
     }
     $Output
