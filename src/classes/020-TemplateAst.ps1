@@ -131,8 +131,9 @@ class TemplateAst : TemplateRootAst {
     }
 
     [void] SetResources ([PSCustomObject]$InputObject) {
-        $this.Resources = foreach ($Resource in $InputObject.Resources) {
-            [TemplateResourceAst]::New($Resource, $this)
+        $this.Resources = @()
+        foreach ($Resource in $InputObject.Resources) {
+            $this.Resources += [TemplateResourceAst]::New($Resource, $this)
         }
     }
 

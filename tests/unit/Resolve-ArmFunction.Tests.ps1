@@ -17,11 +17,12 @@ InModuleScope ArmTemplateValidation {
 
                 Mock -CommandName Resolve-ArmReferenceFunction -MockWith {
                     [PSCustomObject]@{
-                        Outputs = [PSCustomObject]@{
-                            test = [PSCustomObject]@{
+                        SomeObject = @(
+                            [PSCustomObject]@{
+                                Name = 'test'
                                 value = 'othertest'
                             }
-                        }
+                        )
                         inputs = 'teststring'
                     }
                 }
@@ -52,8 +53,8 @@ InModuleScope ArmTemplateValidation {
                 $Sut | Should -Be 'teststring'
             }
 
-            It "Should handle property access for multiple properties deep in [reference('test','item').outputs.test.value]" {
-                $Sut = Resolve-ArmFunction -InputString "[reference('test','item').outputs.test.value]" -Template $EmptyTemplate
+            It "Should handle property access for multiple properties deep in [reference('test','item').SomeObject.value]" {
+                $Sut = Resolve-ArmFunction -InputString "[reference('test','item').SomeObject.value]" -Template $EmptyTemplate
 
                 $Sut | Should -Be 'othertest'
             }
@@ -70,14 +71,32 @@ InModuleScope ArmTemplateValidation {
                 }
                 Mock -CommandName Resolve-ArmReferenceFunction -MockWith {
                     [PSCustomObject]@{
-                        Outputs = [PSCustomObject]@{
-                            test = [PSCustomObject]@{
+                        SomeObject = @(
+                            [PSCustomObject]@{
+                                Name = 'test'
                                 value = 'othertest'
                             }
-                        }
+                        )
                         inputs = 'teststring'
                     }
                 }
+                Mock -CommandName Resolve-ArmReferenceFunction -MockWith {
+                    [TemplateResourceAst]::New([PSCustomObject]@{
+                        Type = 'Microsoft.Resources/Deployment'
+                        Name = 'ExampleDeployment'
+                        ApiVersion = '1970-01-01'
+                        Properties = [PSCustomObject]@{
+                            Template = [PSCustomObject]@{
+                                Outputs = @(
+                                    [PSCustomObject]@{
+                                        Name = 'example'
+                                        value = 'OutputValue'
+                                    }
+                                )
+                            }
+                        }
+                    }, ([TemplateRootAst]::New()))
+                } -ParameterFilter {$Arguments[0].Token.StringValue -eq "'thing'"}
             }
 
             It "Should call the concat function when passed an ArmValue for [contact('test','data')]" {
@@ -115,12 +134,20 @@ InModuleScope ArmTemplateValidation {
                 $Result | Should -Be 'teststring'
             }
 
-            It "Should handle property access for multiple properties deep in [reference('test','item').outputs.test.value]" {
-                $Sut = [ArmParser]::Parse("[reference('test','item').outputs.test.value]")
+            It "Should handle property access for multiple properties deep in [reference('test','item').SomeObject.value]" {
+                $Sut = [ArmParser]::Parse("[reference('test','item').SomeObject.value]")
 
                 $result = Resolve-ArmFunction -InputObject $Sut.Expression -Template $EmptyTemplate
 
                 $Result | Should -Be 'othertest'
+            }
+
+            It "Should handle returning values inside the outputs section of linked or nested tempaltes when passed [reference('thing').Outputs.example.value]" {
+                $Sut = [ArmParser]::Parse("[reference('thing').Outputs.example.value]")
+
+                $Result = Resolve-ArmFunction -InputObject $Sut.Expression -Template $EmptyTemplate
+
+                $Result | Should -Be 'OutputValue'
             }
 
         }
